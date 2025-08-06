@@ -1,0 +1,12 @@
+{
+  "name": "playwright-junit-reporter",
+  "packageManager": "yarn@4.9.2",
+  "devDependencies": {
+    "husky": "^9.1.7",
+    "pinst": "^3.0.0",
+    "typescript": "^5.9.2"
+  },
+  "scripts": {
+    "prepare": "husky"
+  }
+}
