@@ -6,7 +6,7 @@ This library's integration is not specific to any test reporting tool (like the 
 
 Various tools may then process the junit content.
 
-The intent for this library is to be customizable via playwright configuration.  Native playwright reporting mechanisms will be used.
+The intent for this library is to be customizable via playwright configuration. Native playwright reporting mechanisms will be used.
 
 ## Versioning
 
