@@ -1,2 +1,3 @@
 node -v
 yarn lint
+
