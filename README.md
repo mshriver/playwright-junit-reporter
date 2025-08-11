@@ -10,6 +10,12 @@ The intent for this library is to be customizable via playwright configuration. 
 
 ## Versioning
 
+Semantic versioning will be used. Repository tags and GitHub release(s) will be provided.
+
 ## Releases
 
+Releases will be done ad-hoc, automated and executed by CI, and will be triggered by repository tagging.
+
 ## Contributing
+
+[![pre-commit](https://img.shields.io/badge/pre--commit-enabled-brightgreen?logo=pre-commit)](https://github.com/pre-commit/pre-commit)

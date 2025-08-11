@@ -15,6 +15,7 @@ export default [
       '.pnp.*',
       '*.json',
       '*.jsonc',
+      '.pre-commit-config.yaml',
     ],
   },
 
