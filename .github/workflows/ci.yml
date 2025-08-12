@@ -1,0 +1,36 @@
+name: Linting, Testing, Building
+
+on:
+  push:
+    branches: [ main ]
+  pull_request:
+    branches: [ main ]
+
+permissions:
+  contents: read
+
+jobs:
+  lint-and-build:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version-file: '.nvmrc'
+          cache: 'yarn'
+
+      - name: Install dependencies
+        run: yarn install --immutable
+
+      - name: Run linting and formatting
+        run: yarn lint
+
+      - name: Build TypeScript
+        run: yarn build
+
+      - name: Check build artifacts
+        run: ls -la dist/

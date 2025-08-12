@@ -1,7 +1,7 @@
 {
   "name": "playwright-junit-reporter",
-  "main": "dist/index.js",
-  "types": "dist/index.d.ts",
+
+  "version": "0.0.1",
   "packageManager": "yarn@1.22.22",
   "license": "MIT",
   "devDependencies": {
@@ -17,8 +17,19 @@
     "typescript": "^5.9.2",
     "typescript-eslint": "^8.39.0"
   },
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "default": "./dist/index.js"
+    },
+    "./package.json": "./package.json"
+  },
   "scripts": {
     "build": "tsc",
-    "lint": "eslint . --fix && prettier . --write"
-  }
+    "lint": "eslint . --fix && prettier . --write",
+    "test": "echo \"No tests specified\" && exit 0"
+  },
+  "files": [ "dist" ],
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts"
 }
