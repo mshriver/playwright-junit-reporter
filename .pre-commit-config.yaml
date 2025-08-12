@@ -6,6 +6,7 @@ repos:
       - id: end-of-file-fixer
       - id: check-yaml
       - id: check-added-large-files
+      - id: check-json
   # TODO - sort out the dep installation, npm cache dirs are getting in the way
   # - repo: local
   #   hooks:
