@@ -1,0 +1,28 @@
+repos:
+  - repo: https://github.com/pre-commit/pre-commit-hooks
+    rev: v6.0.0
+    hooks:
+      - id: trailing-whitespace
+      - id: end-of-file-fixer
+      - id: check-yaml
+      - id: check-added-large-files
+  # TODO - sort out the dep installation, npm cache dirs are getting in the way
+  # - repo: local
+  #   hooks:
+  #     - id: yarn-lint
+  #       name: Yarn lint
+  #       entry: npx yarn lint
+  #       language: node
+  #       types: [file]
+  #       additional_dependencies:
+  #         - eslint/js
+  #         - eslint/json
+  #         - eslint/markdown
+  #         - eslint
+  #         - eslint-config-prettier
+  #         - eslint-plugin-prettier
+  #         - globals
+  #         - pinst
+  #         - prettier
+  #         - typescript
+  #         - typescript-eslint
