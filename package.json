@@ -1,6 +1,5 @@
 {
   "name": "playwright-junit-reporter",
-
   "version": "0.0.1",
   "packageManager": "yarn@1.22.22",
   "license": "MIT",
@@ -29,7 +28,10 @@
     "lint": "eslint . --fix && prettier . --write",
     "test": "echo \"No tests specified\" && exit 0"
   },
-  "files": [ "dist" ],
+  "files": [
+    "dist"
+  ],
   "main": "dist/index.js",
-  "types": "dist/index.d.ts"
+  "types": "dist/index.d.ts",
+  "type": "module"
 }
