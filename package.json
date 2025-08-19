@@ -29,8 +29,8 @@
   "scripts": {
     "build": "tsc",
     "lint": "eslint . --fix && prettier . --write",
-    "test": "tsc && node --test dist/schema/tags.test.js",
-    "test:dev": "node --import tsx --test schema/tags.test.ts"
+    "test": "tsc && node --test dist/schema/tags.test.js dist/schema/annotations.test.js dist/schema/testcase-metadata.test.js",
+    "test:dev": "node --import tsx --test schema/tags.test.ts schema/annotations.test.ts schema/testcase-metadata.test.ts"
   },
   "files": [
     "dist"

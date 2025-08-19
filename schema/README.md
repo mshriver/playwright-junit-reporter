@@ -1,6 +1,6 @@
-# TypeScript Tag Validation System for Playwright
+# TypeScript Schema Validation System for Playwright
 
-This schema provides a comprehensive TypeScript type system for validating Playwright tags using template literal types, mapped types, and conditional types.
+This schema provides comprehensive TypeScript type systems for validating Playwright tags and annotations using template literal types, mapped types, and conditional types.
 
 ## Key Features
 
@@ -16,13 +16,16 @@ export type ValidPlaywrightTags = `${typeof PW_PREFIX}${PlaywrightTagPrimitives}
 
 ### 2. Strong Type Safety
 
-All valid tags are strictly typed using union types derived from runtime constants:
+All valid tags and annotations are strictly typed using union types derived from runtime constants:
 
 ```typescript
 const PlaywrightTagValues = ['skip', 'fail', 'fixme', 'slow', 'fast'] as const;
 export type PlaywrightTagPrimitives = typeof PlaywrightTagValues[number];
 export type ValidTags = ValidPlaywrightTags | ValidCustomTags;
 export type ValidTagsArray = ValidTags[];
+
+const AnnotationTypePrimitives = ['link'] as const;
+export type ValidAnnotationTypes = AnnotationType;
 ```
 
 ### 3. Conditional Types for Validation
@@ -31,6 +34,7 @@ The system includes conditional types for compile-time validation:
 
 ```typescript
 export type IsValidTag<T extends string> = T extends ValidTags ? true : false;
+export type IsValidAnnotationType<T extends string> = T extends ValidAnnotationTypes ? true : false;
 ```
 
 ### 4. Mapped Types for Tag Processing
