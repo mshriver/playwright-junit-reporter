@@ -1,4 +1,4 @@
-import { CustomTags } from './tags-custom.types';
+import { CustomTags, CustomTagPrimitives } from './tags-custom.types.js';
 /**
  * Represents a tag, using 'value' as the identifier.
  *
@@ -64,9 +64,9 @@ export interface TestCaseTags {
 export function isValidTag(tag: string): tag is ValidTags {
   const validTags: ValidTags[] = [
     // PW tags
-    ...PlaywrightTagValues.map(value => `${typeof PW_PREFIX}${value}` as ValidPlaywrightTags),
+    ...PlaywrightTagValues.map(value => `${PW_PREFIX}${value}` as ValidPlaywrightTags),
     // Custom tags
-    // '@smoke', '@regression', '@sanity', '@e2e', '@slow', '@fast', '@skip'
+    ...CustomTagPrimitives.map(value => `${PW_PREFIX}${value}` as ValidCustomTags)
   ];
 
   return validTags.includes(tag as ValidTags);

@@ -7,12 +7,15 @@
     "@eslint/js": "^9.32.0",
     "@eslint/json": "^0.13.1",
     "@eslint/markdown": "^7.1.0",
+    "@types/node": "^24.3.0",
     "eslint": "^9.32.0",
     "eslint-config-prettier": "^10.1.8",
     "eslint-plugin-prettier": "^5.5.4",
     "globals": "^16.3.0",
     "pinst": "^3.0.0",
     "prettier": "^3.6.2",
+    "ts-node": "^10.9.2",
+    "tsx": "^4.20.4",
     "typescript": "^5.9.2",
     "typescript-eslint": "^8.39.0"
   },
@@ -26,7 +29,8 @@
   "scripts": {
     "build": "tsc",
     "lint": "eslint . --fix && prettier . --write",
-    "test": "echo \"No tests specified\" && exit 0"
+    "test": "tsc && node --test dist/schema/tags.test.js",
+    "test:dev": "node --import tsx --test schema/tags.test.ts"
   },
   "files": [
     "dist"

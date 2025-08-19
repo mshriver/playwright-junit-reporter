@@ -1,9 +1,10 @@
 /**
  * Additional custom tags that might be used in testing
  */
-export type CustomTags =
-  | 'smoke'
-  | 'regression'
-  | 'sanity'
-  | 'e2e'
-  | 'fast';
+export const CustomTagPrimitives = [
+  'smoke',
+  'regression',
+  'sanity',
+  'e2e',
+] as const;
+export type CustomTags = typeof CustomTagPrimitives[number];
