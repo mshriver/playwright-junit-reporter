@@ -34,3 +34,33 @@ jobs:
 
       - name: Check build artifacts
         run: ls -la dist/
+
+      - name: Run tests with coverage
+        run: yarn test:coverage
+
+      - name: Generate coverage summary for PR
+        if: github.event_name == 'pull_request'
+        run: yarn coverage:summary
+
+      - name: Check coverage thresholds
+        run: yarn coverage:check
+
+      - name: Upload coverage reports to Codecov
+        uses: codecov/codecov-action@v4
+        with:
+          file: ./coverage/lcov.info
+          flags: unittests
+          name: codecov-umbrella
+          fail_ci_if_error: false
+        env:
+          CODECOV_TOKEN: ${{ secrets.CODECOV_TOKEN }}
+
+      - name: Archive coverage artifacts
+        uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: coverage-report
+          path: |
+            coverage/
+            !coverage/.nyc_output/
+          retention-days: 30
