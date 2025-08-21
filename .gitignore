@@ -8,3 +8,7 @@ dist
 
 #!.yarn/cache
 .pnp.*
+
+# Test coverage
+coverage/
+.nyc_output/
