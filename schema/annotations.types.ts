@@ -11,12 +11,11 @@ import {
   Category,
   ImportancePrimitives,
   InterfaceTypePrimitives,
-  CategoryPrimitives
+  CategoryPrimitives,
 } from './annotations-custom.types.js';
 
 // Re-export ValidAnnotationTypes for external use
 export { ValidAnnotationTypes };
-
 
 /**
  * Type mapping for annotation descriptions based on their type
@@ -59,12 +58,15 @@ export type ValidAnnotation = {
 /**
  * Utility type to extract the description type for a given annotation type
  */
-export type DescriptionType<T extends ValidAnnotationTypes> = AnnotationDescriptionMap[T];
+export type DescriptionType<T extends ValidAnnotationTypes> =
+  AnnotationDescriptionMap[T];
 
 /**
  * Utility type to create a strongly typed annotation factory function signature
  */
-export type AnnotationFactory<T extends ValidAnnotationTypes> = (description: DescriptionType<T>) => TypedAnnotation<T>;
+export type AnnotationFactory<T extends ValidAnnotationTypes> = (
+  description: DescriptionType<T>,
+) => TypedAnnotation<T>;
 
 /**
  * Mapped type for all annotation factory functions
@@ -96,7 +98,8 @@ export type LinkAnnotation = SpecificAnnotationMap[typeof LINK_TYPE];
  * @property type - The annotation type, always 'importance'.
  * @property description - The importance level (critical, high, medium, low).
  */
-export type ImportanceAnnotation = SpecificAnnotationMap[typeof IMPORTANCE_TYPE];
+export type ImportanceAnnotation =
+  SpecificAnnotationMap[typeof IMPORTANCE_TYPE];
 
 /**
  * Represents an interface annotation, extending the TypedAnnotation type.
@@ -122,21 +125,25 @@ export type AssigneeAnnotation = SpecificAnnotationMap[typeof ASSIGNEE_TYPE];
 /**
  * Union type of all specific annotation interfaces
  */
-export type SpecificAnnotation = LinkAnnotation | ImportanceAnnotation | InterfaceAnnotation | CategoryAnnotation | AssigneeAnnotation;
+export type SpecificAnnotation =
+  | LinkAnnotation
+  | ImportanceAnnotation
+  | InterfaceAnnotation
+  | CategoryAnnotation
+  | AssigneeAnnotation;
 
 /**
  * Array type for valid annotations
  */
 export type ValidAnnotationsArray = ValidAnnotation[];
 
-
 /**
  * Generic validation function for typed values
  */
 function createValueValidator<T extends keyof ValidationPrimitivesMap>(
-  primitives: ValidationPrimitivesMap[T]
+  primitives: ValidationPrimitivesMap[T],
 ) {
-  return function(value: string): value is ValidationPrimitivesMap[T][number] {
+  return function (value: string): value is ValidationPrimitivesMap[T][number] {
     return (primitives as readonly string[]).includes(value);
   };
 }
@@ -144,19 +151,24 @@ function createValueValidator<T extends keyof ValidationPrimitivesMap>(
 /**
  * Type guard to validate if a string is a valid annotation type
  */
-export function isValidAnnotationType(type: string): type is ValidAnnotationTypes {
+export function isValidAnnotationType(
+  type: string,
+): type is ValidAnnotationTypes {
   return AnnotationTypePrimitives.includes(type as ValidAnnotationTypes);
 }
 
 /**
  * Type guard to validate if a string is a valid importance value
  */
-export const isValidImportanceValue = createValueValidator(ImportancePrimitives);
+export const isValidImportanceValue =
+  createValueValidator(ImportancePrimitives);
 
 /**
  * Type guard to validate if a string is a valid interface type value
  */
-export const isValidInterfaceTypeValue = createValueValidator(InterfaceTypePrimitives);
+export const isValidInterfaceTypeValue = createValueValidator(
+  InterfaceTypePrimitives,
+);
 
 /**
  * Type guard to validate if a string is a valid category value
@@ -166,7 +178,9 @@ export const isValidCategoryValue = createValueValidator(CategoryPrimitives);
 /**
  * Enhanced type guard to validate if an object is a valid annotation with typed descriptions
  */
-export function isValidAnnotation(annotation: unknown): annotation is ValidAnnotation {
+export function isValidAnnotation(
+  annotation: unknown,
+): annotation is ValidAnnotation {
   if (
     typeof annotation !== 'object' ||
     annotation === null ||
@@ -176,7 +190,10 @@ export function isValidAnnotation(annotation: unknown): annotation is ValidAnnot
     return false;
   }
 
-  const { type, description } = annotation as { type: string; description: string };
+  const { type, description } = annotation as {
+    type: string;
+    description: string;
+  };
 
   if (!isValidAnnotationType(type)) {
     return false;
@@ -202,18 +219,26 @@ export function isValidAnnotation(annotation: unknown): annotation is ValidAnnot
 /**
  * Type guard to validate an array of annotations
  */
-export function areValidAnnotations(annotations: unknown[]): annotations is ValidAnnotation[] {
-  return annotations.every(annotation => isValidAnnotation(annotation));
+export function areValidAnnotations(
+  annotations: unknown[],
+): annotations is ValidAnnotation[] {
+  return annotations.every((annotation) => isValidAnnotation(annotation));
 }
 
 /**
  * Helper function to create a validated annotations array
  */
-export function createValidAnnotationsArray(annotations: unknown[]): ValidAnnotation[] {
+export function createValidAnnotationsArray(
+  annotations: unknown[],
+): ValidAnnotation[] {
   const validAnnotations = annotations.filter(isValidAnnotation);
   if (validAnnotations.length !== annotations.length) {
-    const invalidAnnotations = annotations.filter(annotation => !isValidAnnotation(annotation));
-    console.warn(`Invalid annotations found and filtered out: ${invalidAnnotations.map(a => (a as Record<string, unknown>)?.type || 'unknown').join(', ')}`);
+    const invalidAnnotations = annotations.filter(
+      (annotation) => !isValidAnnotation(annotation),
+    );
+    console.warn(
+      `Invalid annotations found and filtered out: ${invalidAnnotations.map((a) => (a as Record<string, unknown>)?.type || 'unknown').join(', ')}`,
+    );
   }
   return validAnnotations;
 }
@@ -222,9 +247,11 @@ export function createValidAnnotationsArray(annotations: unknown[]): ValidAnnota
  * Generic type guard factory for specific annotation types
  */
 function createAnnotationTypeGuard<T extends ValidAnnotationTypes>(
-  expectedType: T
+  expectedType: T,
 ) {
-  return function(annotation: ValidAnnotation): annotation is SpecificAnnotationMap[T] {
+  return function (
+    annotation: ValidAnnotation,
+  ): annotation is SpecificAnnotationMap[T] {
     return annotation.type === expectedType;
   };
 }
@@ -237,7 +264,8 @@ export const isLinkAnnotation = createAnnotationTypeGuard(LINK_TYPE);
 /**
  * Type guard for importance annotations specifically
  */
-export const isImportanceAnnotation = createAnnotationTypeGuard(IMPORTANCE_TYPE);
+export const isImportanceAnnotation =
+  createAnnotationTypeGuard(IMPORTANCE_TYPE);
 
 /**
  * Type guard for interface annotations specifically
@@ -257,13 +285,13 @@ export const isAssigneeAnnotation = createAnnotationTypeGuard(ASSIGNEE_TYPE);
 /**
  * Generic annotation factory function
  */
-function createAnnotationFactory<T extends ValidAnnotationTypes>(
-  type: T
-) {
-  return function(description: AnnotationDescriptionMap[T]): TypedAnnotation<T> {
+function createAnnotationFactory<T extends ValidAnnotationTypes>(type: T) {
+  return function (
+    description: AnnotationDescriptionMap[T],
+  ): TypedAnnotation<T> {
     return {
       type,
-      description
+      description,
     } as TypedAnnotation<T>;
   };
 }
@@ -276,12 +304,14 @@ export const createLinkAnnotation = createAnnotationFactory(LINK_TYPE);
 /**
  * Helper function to create an importance annotation
  */
-export const createImportanceAnnotation = createAnnotationFactory(IMPORTANCE_TYPE);
+export const createImportanceAnnotation =
+  createAnnotationFactory(IMPORTANCE_TYPE);
 
 /**
  * Helper function to create an interface annotation
  */
-export const createInterfaceAnnotation = createAnnotationFactory(INTERFACE_TYPE);
+export const createInterfaceAnnotation =
+  createAnnotationFactory(INTERFACE_TYPE);
 
 /**
  * Helper function to create a category annotation

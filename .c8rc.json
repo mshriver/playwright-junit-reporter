@@ -1,9 +1,6 @@
 {
   "all": true,
-  "include": [
-    "dist/**/*.js",
-    "schema/**/*.ts"
-  ],
+  "include": ["dist/**/*.js", "schema/**/*.ts"],
   "exclude": [
     "dist/**/*.test.js",
     "schema/**/*.test.ts",
@@ -13,14 +10,7 @@
     "*.config.*",
     "*.test.*"
   ],
-  "reporter": [
-    "text",
-    "text-summary",
-    "html",
-    "lcov",
-    "json",
-    "json-summary"
-  ],
+  "reporter": ["text", "text-summary", "html", "lcov", "json", "json-summary"],
   "reports-dir": "coverage",
   "temp-directory": "coverage/.nyc_output",
   "check-coverage": true,

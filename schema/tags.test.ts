@@ -16,7 +16,7 @@ import {
   ValidTags,
   ExtractTagValue,
   IsValidTag,
-  AllTagValues
+  AllTagValues,
 } from './tags.types.js';
 
 // Mock console.warn to capture warnings during testing
@@ -37,8 +37,8 @@ function restoreConsoleWarn() {
 
 function expectWarningCalled(expectedMessage: string) {
   assert.ok(
-    capturedWarnings.some(warning => warning === expectedMessage),
-    `Expected warning "${expectedMessage}" but got: ${capturedWarnings.join(', ')}`
+    capturedWarnings.some((warning) => warning === expectedMessage),
+    `Expected warning "${expectedMessage}" but got: ${capturedWarnings.join(', ')}`,
   );
 }
 
@@ -46,12 +46,11 @@ function expectNoWarningsCalled() {
   assert.strictEqual(
     capturedWarnings.length,
     0,
-    `Expected no warnings but got: ${capturedWarnings.join(', ')}`
+    `Expected no warnings but got: ${capturedWarnings.join(', ')}`,
   );
 }
 
 describe('Tag Validation System', () => {
-
   describe('isValidTag function', () => {
     it('should validate Playwright built-in tags', () => {
       assert.strictEqual(isValidTag('@skip'), true);
@@ -121,7 +120,13 @@ describe('Tag Validation System', () => {
     });
 
     it('should handle mixed valid and invalid tags', () => {
-      const mixedArray: string[] = ['@smoke', '@invalid', '@skip', '@badtag', '@fast'];
+      const mixedArray: string[] = [
+        '@smoke',
+        '@invalid',
+        '@skip',
+        '@badtag',
+        '@fast',
+      ];
       assert.strictEqual(areValidTags(mixedArray), false);
     });
 
@@ -158,7 +163,9 @@ describe('Tag Validation System', () => {
 
       assert.deepStrictEqual(result, ['@smoke', '@skip', '@fast']);
       assert.strictEqual(result.length, 3);
-      expectWarningCalled('Invalid tags found and filtered out: @invalid, @badtag');
+      expectWarningCalled(
+        'Invalid tags found and filtered out: @invalid, @badtag',
+      );
     });
 
     it('should return all tags when all are valid', () => {
@@ -179,7 +186,9 @@ describe('Tag Validation System', () => {
 
       assert.deepStrictEqual(result, []);
       assert.strictEqual(result.length, 0);
-      expectWarningCalled('Invalid tags found and filtered out: @invalid, @badtag, @critical');
+      expectWarningCalled(
+        'Invalid tags found and filtered out: @invalid, @badtag, @critical',
+      );
     });
 
     it('should log warning when single invalid tag is filtered out', () => {
@@ -212,7 +221,14 @@ describe('Tag Validation System', () => {
     it('should preserve order of valid tags', () => {
       capturedWarnings = []; // Reset warnings for this test
 
-      const mixedTags = ['@fast', '@invalid', '@smoke', '@badtag', '@skip', '@e2e'];
+      const mixedTags = [
+        '@fast',
+        '@invalid',
+        '@smoke',
+        '@badtag',
+        '@skip',
+        '@e2e',
+      ];
       const result = createValidTagsArray(mixedTags);
 
       assert.deepStrictEqual(result, ['@fast', '@smoke', '@skip', '@e2e']);
@@ -233,12 +249,14 @@ describe('Tag Validation System', () => {
         tags: string[];
       }
 
-      function extractValidTagsFromPlaywright(testInfo: PlaywrightTestInfo): ValidTagsArray {
+      function extractValidTagsFromPlaywright(
+        testInfo: PlaywrightTestInfo,
+      ): ValidTagsArray {
         return createValidTagsArray(testInfo.tags);
       }
 
       const mockTestInfo: PlaywrightTestInfo = {
-        tags: ['@smoke', '@e2e', '@skip', '@some-invalid-tag']
+        tags: ['@smoke', '@e2e', '@skip', '@some-invalid-tag'],
       };
 
       const extractedTags = extractValidTagsFromPlaywright(mockTestInfo);
@@ -249,7 +267,7 @@ describe('Tag Validation System', () => {
       function validatePlaywrightTags(tags: string[]): {
         valid: ValidTagsArray;
         invalid: string[];
-        isAllValid: boolean
+        isAllValid: boolean;
       } {
         const valid: ValidTagsArray = [];
         const invalid: string[] = [];
@@ -265,14 +283,18 @@ describe('Tag Validation System', () => {
         return {
           valid,
           invalid,
-          isAllValid: invalid.length === 0
+          isAllValid: invalid.length === 0,
         };
       }
 
       const testTags = ['@smoke', '@regression', '@invalid-tag', '@skip'];
       const validation = validatePlaywrightTags(testTags);
 
-      assert.deepStrictEqual(validation.valid, ['@smoke', '@regression', '@skip']);
+      assert.deepStrictEqual(validation.valid, [
+        '@smoke',
+        '@regression',
+        '@skip',
+      ]);
       assert.deepStrictEqual(validation.invalid, ['@invalid-tag']);
       assert.strictEqual(validation.isAllValid, false);
 
@@ -337,9 +359,7 @@ describe('Tag Validation System', () => {
   describe('Performance and Edge Cases', () => {
     it('should handle large arrays efficiently', () => {
       const largeMixedArray = Array.from({ length: 1000 }, (_, i) =>
-        i % 3 === 0 ? '@smoke' :
-        i % 3 === 1 ? '@skip' :
-        '@invalid'
+        i % 3 === 0 ? '@smoke' : i % 3 === 1 ? '@skip' : '@invalid',
       );
 
       const start = Date.now();
@@ -347,7 +367,10 @@ describe('Tag Validation System', () => {
       const end = Date.now();
 
       // Should complete quickly (less than 100ms for 1000 items)
-      assert.ok(end - start < 50, 'Performance should be acceptable for large arrays');
+      assert.ok(
+        end - start < 50,
+        'Performance should be acceptable for large arrays',
+      );
 
       // Should have correct number of valid tags (2/3 of input, but exact count)
       // For 1000 items with pattern i%3: 334 '@smoke' + 333 '@skip' + 333 '@invalid' = 667 valid

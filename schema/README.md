@@ -11,7 +11,8 @@ The system uses TypeScript's template literal types to ensure all tags have the 
 ```typescript
 const PW_PREFIX = '@' as const;
 export type Tag = `${typeof PW_PREFIX}${string}`;
-export type ValidPlaywrightTags = `${typeof PW_PREFIX}${PlaywrightTagPrimitives}`;
+export type ValidPlaywrightTags =
+  `${typeof PW_PREFIX}${PlaywrightTagPrimitives}`;
 ```
 
 ### 2. Strong Type Safety
@@ -20,7 +21,7 @@ All valid tags and annotations are strictly typed using union types derived from
 
 ```typescript
 const PlaywrightTagValues = ['skip', 'fail', 'fixme', 'slow', 'fast'] as const;
-export type PlaywrightTagPrimitives = typeof PlaywrightTagValues[number];
+export type PlaywrightTagPrimitives = (typeof PlaywrightTagValues)[number];
 export type ValidTags = ValidPlaywrightTags | ValidCustomTags;
 export type ValidTagsArray = ValidTags[];
 
@@ -34,7 +35,8 @@ The system includes conditional types for compile-time validation:
 
 ```typescript
 export type IsValidTag<T extends string> = T extends ValidTags ? true : false;
-export type IsValidAnnotationType<T extends string> = T extends ValidAnnotationTypes ? true : false;
+export type IsValidAnnotationType<T extends string> =
+  T extends ValidAnnotationTypes ? true : false;
 ```
 
 ### 4. Mapped Types for Tag Processing
@@ -42,7 +44,8 @@ export type IsValidAnnotationType<T extends string> = T extends ValidAnnotationT
 Extract tag values without the `@` prefix:
 
 ```typescript
-export type ExtractTagValue<T extends ValidTags> = T extends `${typeof PW_PREFIX}${infer U}` ? U : never;
+export type ExtractTagValue<T extends ValidTags> =
+  T extends `${typeof PW_PREFIX}${infer U}` ? U : never;
 ```
 
 ## Usage Examples
@@ -85,12 +88,15 @@ console.log('\nFiltered tags:', validatedTags); // ['@smoke', '@skip', '@fast']
 ### Integration with Test Case Metadata
 
 ```typescript
-import { TestCaseMetadata, validateTestCaseMetadata } from './testcase-metadata.types';
+import {
+  TestCaseMetadata,
+  validateTestCaseMetadata,
+} from './testcase-metadata.types';
 
 const metadata: TestCaseMetadata = {
   component: 'authentication',
   importance: 'critical',
-  tags: ['@smoke', '@critical', '@ui'] // Type-safe tag array
+  tags: ['@smoke', '@critical', '@ui'], // Type-safe tag array
 };
 
 if (validateTestCaseMetadata(metadata)) {
@@ -116,12 +122,14 @@ interface PlaywrightTestInfo {
   // ... other Playwright test properties
 }
 
-function extractValidTagsFromPlaywright(testInfo: PlaywrightTestInfo): ValidTagsArray {
+function extractValidTagsFromPlaywright(
+  testInfo: PlaywrightTestInfo,
+): ValidTagsArray {
   return createValidTagsArray(testInfo.tags);
 }
 
 const mockTestInfo: PlaywrightTestInfo = {
-  tags: ['@smoke', '@e2e', '@skip', '@some-invalid-tag']
+  tags: ['@smoke', '@e2e', '@skip', '@some-invalid-tag'],
 };
 
 const extractedTags = extractValidTagsFromPlaywright(mockTestInfo);
@@ -137,7 +145,7 @@ import { ValidTagsArray, isValidTag } from './tags.types';
 export function validatePlaywrightTags(tags: string[]): {
   valid: ValidTagsArray;
   invalid: string[];
-  isAllValid: boolean
+  isAllValid: boolean;
 } {
   const valid: ValidTagsArray = [];
   const invalid: string[] = [];
@@ -153,7 +161,7 @@ export function validatePlaywrightTags(tags: string[]): {
   return {
     valid,
     invalid,
-    isAllValid: invalid.length === 0
+    isAllValid: invalid.length === 0,
   };
 }
 
@@ -170,6 +178,7 @@ console.log('All valid:', validation.isAllValid);
 ## Supported Tag Categories
 
 ### 1. Playwright Built-in Tags
+
 - `@skip` - Skip test execution
 - `@fail` - Expect test to fail
 - `@fixme` - Mark test as needing fixes
@@ -177,6 +186,7 @@ console.log('All valid:', validation.isAllValid);
 - `@fast` - Mark test as fast running
 
 ### 2. Custom Testing Tags
+
 - `@smoke` - Smoke tests
 - `@regression` - Regression tests
 - `@sanity` - Sanity tests

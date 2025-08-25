@@ -2,9 +2,9 @@ name: Linting, Testing, Building
 
 on:
   push:
-    branches: [ main ]
+    branches: [main]
   pull_request:
-    branches: [ main ]
+    branches: [main]
 
 permissions:
   contents: read
@@ -34,6 +34,9 @@ jobs:
 
       - name: Check build artifacts
         run: ls -la dist/
+
+      - name: Validate Playwright metadata
+        run: yarn validate:playwright
 
       - name: Run tests with coverage
         run: yarn test:coverage

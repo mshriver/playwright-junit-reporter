@@ -32,7 +32,7 @@ import {
   ImportanceAnnotation,
   InterfaceAnnotation,
   CategoryAnnotation,
-  ValidAnnotationsArray
+  ValidAnnotationsArray,
 } from './annotations.types.js';
 
 // Mock console.warn to capture warnings during testing
@@ -40,8 +40,11 @@ let originalConsoleWarn: typeof console.warn;
 let warningMessages: string[] = [];
 
 function expectWarningCalled(expectedMessage: string) {
-  const found = warningMessages.some(msg => msg.includes(expectedMessage));
-  assert.ok(found, `Expected warning "${expectedMessage}" but got: ${warningMessages.join(', ')}`);
+  const found = warningMessages.some((msg) => msg.includes(expectedMessage));
+  assert.ok(
+    found,
+    `Expected warning "${expectedMessage}" but got: ${warningMessages.join(', ')}`,
+  );
 }
 
 before(() => {
@@ -144,11 +147,20 @@ describe('Annotation Validation System', () => {
 
   describe('isValidAnnotation function', () => {
     it('should validate valid annotation objects', () => {
-      const linkAnnotation = { type: 'link', description: 'https://example.com' };
-      const importanceAnnotation = { type: 'importance', description: 'critical' };
+      const linkAnnotation = {
+        type: 'link',
+        description: 'https://example.com',
+      };
+      const importanceAnnotation = {
+        type: 'importance',
+        description: 'critical',
+      };
       const interfaceAnnotation = { type: 'interface', description: 'ui' };
       const categoryAnnotation = { type: 'category', description: 'unit' };
-      const assigneeAnnotation = { type: 'assignee', description: 'user@example.com' };
+      const assigneeAnnotation = {
+        type: 'assignee',
+        description: 'user@example.com',
+      };
 
       assert.strictEqual(isValidAnnotation(linkAnnotation), true);
       assert.strictEqual(isValidAnnotation(importanceAnnotation), true);
@@ -159,16 +171,28 @@ describe('Annotation Validation System', () => {
 
     it('should reject invalid annotation objects', () => {
       // Invalid annotation types
-      assert.strictEqual(isValidAnnotation({ type: 'invalid', description: 'test' }), false);
+      assert.strictEqual(
+        isValidAnnotation({ type: 'invalid', description: 'test' }),
+        false,
+      );
 
       // Missing fields
       assert.strictEqual(isValidAnnotation({ type: 'link' }), false); // missing description
       assert.strictEqual(isValidAnnotation({ description: 'test' }), false); // missing type
 
       // Invalid description values for typed annotations
-      assert.strictEqual(isValidAnnotation({ type: 'importance', description: 'urgent' }), false);
-      assert.strictEqual(isValidAnnotation({ type: 'interface', description: 'web' }), false);
-      assert.strictEqual(isValidAnnotation({ type: 'category', description: 'smoke' }), false);
+      assert.strictEqual(
+        isValidAnnotation({ type: 'importance', description: 'urgent' }),
+        false,
+      );
+      assert.strictEqual(
+        isValidAnnotation({ type: 'interface', description: 'web' }),
+        false,
+      );
+      assert.strictEqual(
+        isValidAnnotation({ type: 'category', description: 'smoke' }),
+        false,
+      );
 
       // Non-objects
       assert.strictEqual(isValidAnnotation(null), false);
@@ -179,9 +203,18 @@ describe('Annotation Validation System', () => {
 
     it('should handle edge cases', () => {
       assert.strictEqual(isValidAnnotation({}), false);
-      assert.strictEqual(isValidAnnotation({ type: 'link', description: '' }), true); // empty description is valid for links
-      assert.strictEqual(isValidAnnotation({ type: '', description: 'test' }), false); // empty type is invalid
-      assert.strictEqual(isValidAnnotation({ type: 'importance', description: '' }), false); // empty description invalid for importance
+      assert.strictEqual(
+        isValidAnnotation({ type: 'link', description: '' }),
+        true,
+      ); // empty description is valid for links
+      assert.strictEqual(
+        isValidAnnotation({ type: '', description: 'test' }),
+        false,
+      ); // empty type is invalid
+      assert.strictEqual(
+        isValidAnnotation({ type: 'importance', description: '' }),
+        false,
+      ); // empty description invalid for importance
     });
 
     it('should properly narrow types (type guard behavior)', () => {
@@ -193,7 +226,10 @@ describe('Annotation Validation System', () => {
         assert.strictEqual(validAnnotation.description, 'test');
       }
 
-      const importanceObject: unknown = { type: 'importance', description: 'high' };
+      const importanceObject: unknown = {
+        type: 'importance',
+        description: 'high',
+      };
       if (isValidAnnotation(importanceObject)) {
         const validAnnotation: ValidAnnotation = importanceObject;
         assert.strictEqual(validAnnotation.type, 'importance');
@@ -208,7 +244,7 @@ describe('Annotation Validation System', () => {
         { type: 'link', description: 'https://example.com' },
         { type: 'importance', description: 'critical' },
         { type: 'interface', description: 'api' },
-        { type: 'category', description: 'function' }
+        { type: 'category', description: 'function' },
       ];
       assert.strictEqual(areValidAnnotations(validAnnotations), true);
     });
@@ -216,13 +252,13 @@ describe('Annotation Validation System', () => {
     it('should reject arrays containing invalid annotations', () => {
       const mixedAnnotations = [
         { type: 'link', description: 'https://example.com' },
-        { type: 'invalid', description: 'test' }
+        { type: 'invalid', description: 'test' },
       ];
       assert.strictEqual(areValidAnnotations(mixedAnnotations), false);
 
       const invalidDescriptions = [
         { type: 'link', description: 'https://example.com' },
-        { type: 'importance', description: 'urgent' } // invalid importance value
+        { type: 'importance', description: 'urgent' }, // invalid importance value
       ];
       assert.strictEqual(areValidAnnotations(invalidDescriptions), false);
     });
@@ -234,7 +270,7 @@ describe('Annotation Validation System', () => {
     it('should properly type guard arrays', () => {
       const unknownArray: unknown[] = [
         { type: 'link', description: 'https://example.com' },
-        { type: 'importance', description: 'high' }
+        { type: 'importance', description: 'high' },
       ];
       if (areValidAnnotations(unknownArray)) {
         // TypeScript should know this is ValidAnnotation[]
@@ -257,14 +293,14 @@ describe('Annotation Validation System', () => {
         { type: 'invalid', description: 'test' },
         { type: 'importance', description: 'critical' },
         { type: 'interface', description: 'web' }, // invalid interface value
-        { type: 'category', description: 'unit' }
+        { type: 'category', description: 'unit' },
       ];
       const result = createValidAnnotationsArray(mixedAnnotations);
 
       assert.deepStrictEqual(result, [
         { type: 'link', description: 'https://example.com' },
         { type: 'importance', description: 'critical' },
-        { type: 'category', description: 'unit' }
+        { type: 'category', description: 'unit' },
       ]);
     });
 
@@ -273,7 +309,7 @@ describe('Annotation Validation System', () => {
         { type: 'link', description: 'https://example.com' },
         { type: 'importance', description: 'high' },
         { type: 'interface', description: 'api' },
-        { type: 'category', description: 'function' }
+        { type: 'category', description: 'function' },
       ];
       const result = createValidAnnotationsArray(validAnnotations);
 
@@ -283,7 +319,7 @@ describe('Annotation Validation System', () => {
     it('should return empty array when all annotations are invalid', () => {
       const invalidAnnotations = [
         { type: 'invalid', description: 'test' },
-        { type: 'another-invalid', description: 'test2' }
+        { type: 'another-invalid', description: 'test2' },
       ];
       const result = createValidAnnotationsArray(invalidAnnotations);
 
@@ -293,11 +329,13 @@ describe('Annotation Validation System', () => {
     it('should log warning when invalid annotations are filtered out', () => {
       const mixedAnnotations = [
         { type: 'link', description: 'https://example.com' },
-        { type: 'invalid', description: 'test' }
+        { type: 'invalid', description: 'test' },
       ];
       createValidAnnotationsArray(mixedAnnotations);
 
-      expectWarningCalled('Invalid annotations found and filtered out: invalid');
+      expectWarningCalled(
+        'Invalid annotations found and filtered out: invalid',
+      );
     });
 
     it('should handle empty input array', () => {
@@ -307,7 +345,7 @@ describe('Annotation Validation System', () => {
 
     it('should return correctly typed ValidAnnotationsArray', () => {
       const validAnnotations = [
-        { type: 'link', description: 'https://example.com' }
+        { type: 'link', description: 'https://example.com' },
       ];
       const result = createValidAnnotationsArray(validAnnotations);
 
@@ -321,14 +359,14 @@ describe('Annotation Validation System', () => {
         { type: 'link', description: 'https://first.com' },
         { type: 'invalid', description: 'test' },
         { type: 'link', description: 'https://second.com' },
-        { type: 'link', description: 'https://third.com' }
+        { type: 'link', description: 'https://third.com' },
       ];
       const result = createValidAnnotationsArray(mixedAnnotations);
 
       assert.deepStrictEqual(result, [
         { type: 'link', description: 'https://first.com' },
         { type: 'link', description: 'https://second.com' },
-        { type: 'link', description: 'https://third.com' }
+        { type: 'link', description: 'https://third.com' },
       ]);
     });
   });
@@ -336,15 +374,24 @@ describe('Annotation Validation System', () => {
   describe('Annotation Type Helpers', () => {
     describe('isLinkAnnotation function', () => {
       it('should identify link annotations correctly', () => {
-        const linkAnnotation: ValidAnnotation = { type: 'link', description: 'https://example.com' };
-        const importanceAnnotation: ValidAnnotation = { type: 'importance', description: 'critical' };
+        const linkAnnotation: ValidAnnotation = {
+          type: 'link',
+          description: 'https://example.com',
+        };
+        const importanceAnnotation: ValidAnnotation = {
+          type: 'importance',
+          description: 'critical',
+        };
 
         assert.strictEqual(isLinkAnnotation(linkAnnotation), true);
         assert.strictEqual(isLinkAnnotation(importanceAnnotation), false);
       });
 
       it('should properly narrow types', () => {
-        const annotation: ValidAnnotation = { type: 'link', description: 'https://example.com' };
+        const annotation: ValidAnnotation = {
+          type: 'link',
+          description: 'https://example.com',
+        };
         if (isLinkAnnotation(annotation)) {
           // TypeScript should know this is LinkAnnotation
           const linkAnnotation: LinkAnnotation = annotation;
@@ -355,15 +402,24 @@ describe('Annotation Validation System', () => {
 
     describe('isImportanceAnnotation function', () => {
       it('should identify importance annotations correctly', () => {
-        const importanceAnnotation: ValidAnnotation = { type: 'importance', description: 'critical' };
-        const linkAnnotation: ValidAnnotation = { type: 'link', description: 'https://example.com' };
+        const importanceAnnotation: ValidAnnotation = {
+          type: 'importance',
+          description: 'critical',
+        };
+        const linkAnnotation: ValidAnnotation = {
+          type: 'link',
+          description: 'https://example.com',
+        };
 
         assert.strictEqual(isImportanceAnnotation(importanceAnnotation), true);
         assert.strictEqual(isImportanceAnnotation(linkAnnotation), false);
       });
 
       it('should properly narrow types', () => {
-        const annotation: ValidAnnotation = { type: 'importance', description: 'high' };
+        const annotation: ValidAnnotation = {
+          type: 'importance',
+          description: 'high',
+        };
         if (isImportanceAnnotation(annotation)) {
           // TypeScript should know this is ImportanceAnnotation
           const importanceAnnotation: ImportanceAnnotation = annotation;
@@ -375,15 +431,24 @@ describe('Annotation Validation System', () => {
 
     describe('isInterfaceAnnotation function', () => {
       it('should identify interface annotations correctly', () => {
-        const interfaceAnnotation: ValidAnnotation = { type: 'interface', description: 'api' };
-        const categoryAnnotation: ValidAnnotation = { type: 'category', description: 'unit' };
+        const interfaceAnnotation: ValidAnnotation = {
+          type: 'interface',
+          description: 'api',
+        };
+        const categoryAnnotation: ValidAnnotation = {
+          type: 'category',
+          description: 'unit',
+        };
 
         assert.strictEqual(isInterfaceAnnotation(interfaceAnnotation), true);
         assert.strictEqual(isInterfaceAnnotation(categoryAnnotation), false);
       });
 
       it('should properly narrow types', () => {
-        const annotation: ValidAnnotation = { type: 'interface', description: 'ui' };
+        const annotation: ValidAnnotation = {
+          type: 'interface',
+          description: 'ui',
+        };
         if (isInterfaceAnnotation(annotation)) {
           // TypeScript should know this is InterfaceAnnotation
           const interfaceAnnotation: InterfaceAnnotation = annotation;
@@ -395,15 +460,24 @@ describe('Annotation Validation System', () => {
 
     describe('isCategoryAnnotation function', () => {
       it('should identify category annotations correctly', () => {
-        const categoryAnnotation: ValidAnnotation = { type: 'category', description: 'function' };
-        const linkAnnotation: ValidAnnotation = { type: 'link', description: 'https://example.com' };
+        const categoryAnnotation: ValidAnnotation = {
+          type: 'category',
+          description: 'function',
+        };
+        const linkAnnotation: ValidAnnotation = {
+          type: 'link',
+          description: 'https://example.com',
+        };
 
         assert.strictEqual(isCategoryAnnotation(categoryAnnotation), true);
         assert.strictEqual(isCategoryAnnotation(linkAnnotation), false);
       });
 
       it('should properly narrow types', () => {
-        const annotation: ValidAnnotation = { type: 'category', description: 'integration' };
+        const annotation: ValidAnnotation = {
+          type: 'category',
+          description: 'integration',
+        };
         if (isCategoryAnnotation(annotation)) {
           // TypeScript should know this is CategoryAnnotation
           const categoryAnnotation: CategoryAnnotation = annotation;
@@ -443,9 +517,14 @@ describe('Annotation Validation System', () => {
       });
 
       it('should work with all importance levels', () => {
-        const levels: Array<'critical' | 'high' | 'medium' | 'low'> = ['critical', 'high', 'medium', 'low'];
+        const levels: Array<'critical' | 'high' | 'medium' | 'low'> = [
+          'critical',
+          'high',
+          'medium',
+          'low',
+        ];
 
-        levels.forEach(level => {
+        levels.forEach((level) => {
           const annotation = createImportanceAnnotation(level);
           assert.strictEqual(annotation.description, level);
           assert.strictEqual(isValidAnnotation(annotation), true);
@@ -464,9 +543,14 @@ describe('Annotation Validation System', () => {
       });
 
       it('should work with all interface types', () => {
-        const types: Array<'ui' | 'api' | 'cli' | 'db'> = ['ui', 'api', 'cli', 'db'];
+        const types: Array<'ui' | 'api' | 'cli' | 'db'> = [
+          'ui',
+          'api',
+          'cli',
+          'db',
+        ];
 
-        types.forEach(type => {
+        types.forEach((type) => {
           const annotation = createInterfaceAnnotation(type);
           assert.strictEqual(annotation.description, type);
           assert.strictEqual(isValidAnnotation(annotation), true);
@@ -485,10 +569,11 @@ describe('Annotation Validation System', () => {
       });
 
       it('should work with all category types', () => {
-        const categories: Array<'unit' | 'function' | 'system' | 'integration' | 'performance'> =
-          ['unit', 'function', 'system', 'integration', 'performance'];
+        const categories: Array<
+          'unit' | 'function' | 'system' | 'integration' | 'performance'
+        > = ['unit', 'function', 'system', 'integration', 'performance'];
 
-        categories.forEach(category => {
+        categories.forEach((category) => {
           const annotation = createCategoryAnnotation(category);
           assert.strictEqual(annotation.description, category);
           assert.strictEqual(isValidAnnotation(annotation), true);
@@ -498,7 +583,9 @@ describe('Annotation Validation System', () => {
 
     describe('isAssigneeAnnotation function', () => {
       it('should identify assignee annotations correctly', () => {
-        const assigneeAnnotation = createAssigneeAnnotation('john.doe@example.com');
+        const assigneeAnnotation = createAssigneeAnnotation(
+          'john.doe@example.com',
+        );
         const linkAnnotation = createLinkAnnotation('https://example.com');
 
         assert.strictEqual(isAssigneeAnnotation(assigneeAnnotation), true);
@@ -506,7 +593,9 @@ describe('Annotation Validation System', () => {
       });
 
       it('should properly narrow types', () => {
-        const annotation: ValidAnnotation = createAssigneeAnnotation('jane.smith@example.com');
+        const annotation: ValidAnnotation = createAssigneeAnnotation(
+          'jane.smith@example.com',
+        );
         if (isAssigneeAnnotation(annotation)) {
           // This should compile without type errors - we know it's an AssigneeAnnotation
           assert.strictEqual(annotation.type, 'assignee');
@@ -531,10 +620,10 @@ describe('Annotation Validation System', () => {
           'John Doe',
           'john.doe',
           '@username',
-          'Team Lead'
+          'Team Lead',
         ];
 
-        formats.forEach(format => {
+        formats.forEach((format) => {
           const annotation = createAssigneeAnnotation(format);
           assert.strictEqual(annotation.description, format);
           assert.strictEqual(isValidAnnotation(annotation), true);
@@ -556,30 +645,30 @@ describe('Annotation Validation System', () => {
         { type: 'invalid', description: 'test' },
         { type: 'importance', description: 'urgent' }, // invalid value
         { type: 'interface', description: 'api' },
-        { type: 'category', description: 'unit' }
+        { type: 'category', description: 'unit' },
       ];
 
       const validAnnotations = mixedAnnotations.filter(isValidAnnotation);
       assert.deepStrictEqual(validAnnotations, [
         { type: 'link', description: 'https://example.com' },
         { type: 'interface', description: 'api' },
-        { type: 'category', description: 'unit' }
+        { type: 'category', description: 'unit' },
       ]);
     });
 
     it('should support validation function pattern', () => {
       const validateAndProcessAnnotations = (annotations: unknown[]) => {
         const validAnnotations = createValidAnnotationsArray(annotations);
-        return validAnnotations.map(annotation => ({
+        return validAnnotations.map((annotation) => ({
           ...annotation,
-          processed: true
+          processed: true,
         }));
       };
 
       const input = [
         { type: 'link', description: 'https://example.com' },
         { type: 'invalid', description: 'test' },
-        { type: 'importance', description: 'high' }
+        { type: 'importance', description: 'high' },
       ];
 
       const result = validateAndProcessAnnotations(input);
@@ -590,7 +679,10 @@ describe('Annotation Validation System', () => {
     });
 
     it('should work with conditional processing', () => {
-      const annotation: unknown = { type: 'importance', description: 'critical' };
+      const annotation: unknown = {
+        type: 'importance',
+        description: 'critical',
+      };
 
       let message: string;
       if (isValidAnnotation(annotation)) {
@@ -607,7 +699,7 @@ describe('Annotation Validation System', () => {
         createLinkAnnotation('https://example.com'),
         createImportanceAnnotation('critical'),
         createInterfaceAnnotation('api'),
-        createCategoryAnnotation('unit')
+        createCategoryAnnotation('unit'),
       ];
 
       const linkCount = annotations.filter(isLinkAnnotation).length;
@@ -627,16 +719,28 @@ describe('Annotation Validation System', () => {
       // These should all compile without TypeScript errors
       const annotationType: ValidAnnotationTypes = 'link';
       const annotation: ValidAnnotation = { type: 'link', description: 'test' };
-      const linkAnnotation: LinkAnnotation = { type: 'link', description: 'test' };
-      const importanceAnnotation: ImportanceAnnotation = { type: 'importance', description: 'critical' };
-      const interfaceAnnotation: InterfaceAnnotation = { type: 'interface', description: 'api' };
-      const categoryAnnotation: CategoryAnnotation = { type: 'category', description: 'unit' };
+      const linkAnnotation: LinkAnnotation = {
+        type: 'link',
+        description: 'test',
+      };
+      const importanceAnnotation: ImportanceAnnotation = {
+        type: 'importance',
+        description: 'critical',
+      };
+      const interfaceAnnotation: InterfaceAnnotation = {
+        type: 'interface',
+        description: 'api',
+      };
+      const categoryAnnotation: CategoryAnnotation = {
+        type: 'category',
+        description: 'unit',
+      };
       const annotationsArray: ValidAnnotationsArray = [
         annotation,
         linkAnnotation,
         importanceAnnotation,
         interfaceAnnotation,
-        categoryAnnotation
+        categoryAnnotation,
       ];
 
       // Verify the values are correct
@@ -651,9 +755,18 @@ describe('Annotation Validation System', () => {
 
     it('should enforce correct description types at compile time', () => {
       // These should compile without errors
-      const validImportance: ImportanceAnnotation = { type: 'importance', description: 'high' };
-      const validInterface: InterfaceAnnotation = { type: 'interface', description: 'ui' };
-      const validCategory: CategoryAnnotation = { type: 'category', description: 'function' };
+      const validImportance: ImportanceAnnotation = {
+        type: 'importance',
+        description: 'high',
+      };
+      const validInterface: InterfaceAnnotation = {
+        type: 'interface',
+        description: 'ui',
+      };
+      const validCategory: CategoryAnnotation = {
+        type: 'category',
+        description: 'function',
+      };
 
       assert.strictEqual(validImportance.description, 'high');
       assert.strictEqual(validInterface.description, 'ui');
@@ -669,7 +782,13 @@ describe('Annotation Validation System', () => {
     it('should handle large arrays efficiently', () => {
       // Create large array with mixed valid/invalid annotations
       const largeMixedArray = Array.from({ length: 1000 }, (_, i) => {
-        const types = ['link', 'importance', 'interface', 'category', 'invalid'];
+        const types = [
+          'link',
+          'importance',
+          'interface',
+          'category',
+          'invalid',
+        ];
         const type = types[i % 5];
 
         let description: string;
@@ -684,7 +803,13 @@ describe('Annotation Validation System', () => {
             description = ['ui', 'api', 'cli', 'db'][i % 4];
             break;
           case 'category':
-            description = ['unit', 'function', 'system', 'integration', 'performance'][i % 5];
+            description = [
+              'unit',
+              'function',
+              'system',
+              'integration',
+              'performance',
+            ][i % 5];
             break;
           default:
             description = `invalid-${i}`;
@@ -698,7 +823,10 @@ describe('Annotation Validation System', () => {
       const end = Date.now();
 
       // Should complete quickly (less than 100ms for 1000 items)
-      assert.ok(end - start < 100, 'Performance should be acceptable for large arrays');
+      assert.ok(
+        end - start < 100,
+        'Performance should be acceptable for large arrays',
+      );
 
       // Should have correct number of valid annotations (4/5 of input = 800)
       assert.strictEqual(result.length, 800);
@@ -710,7 +838,7 @@ describe('Annotation Validation System', () => {
         { type: 'link', description: 'https://example.com' },
         { type: 'importance', description: 'critical' },
         { type: 'importance', description: 'critical' },
-        { type: 'invalid', description: 'test' }
+        { type: 'invalid', description: 'test' },
       ];
       const result = createValidAnnotationsArray(duplicateAnnotations);
 
@@ -719,7 +847,7 @@ describe('Annotation Validation System', () => {
         { type: 'link', description: 'https://example.com' },
         { type: 'link', description: 'https://example.com' },
         { type: 'importance', description: 'critical' },
-        { type: 'importance', description: 'critical' }
+        { type: 'importance', description: 'critical' },
       ]);
     });
 
@@ -736,7 +864,7 @@ describe('Annotation Validation System', () => {
         { type: 'link', description: null },
         { type: 'importance', description: 'invalid-importance' },
         { type: 'interface', description: 'invalid-interface' },
-        { type: 'category', description: 'invalid-category' }
+        { type: 'category', description: 'invalid-category' },
       ];
 
       const result = createValidAnnotationsArray(malformedObjects);

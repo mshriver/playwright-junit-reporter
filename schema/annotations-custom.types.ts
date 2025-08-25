@@ -6,15 +6,10 @@ export const ImportancePrimitives = [
   'medium',
   'low',
 ] as const;
-export type Importance = typeof ImportancePrimitives[number];
+export type Importance = (typeof ImportancePrimitives)[number];
 
-export const InterfaceTypePrimitives = [
-  'ui',
-  'api',
-  'cli',
-  'db',
-] as const;
-export type InterfaceType = typeof InterfaceTypePrimitives[number];
+export const InterfaceTypePrimitives = ['ui', 'api', 'cli', 'db'] as const;
+export type InterfaceType = (typeof InterfaceTypePrimitives)[number];
 
 export const CategoryPrimitives = [
   'unit',
@@ -23,7 +18,7 @@ export const CategoryPrimitives = [
   'integration',
   'performance',
 ] as const;
-export type Category = typeof CategoryPrimitives[number];
+export type Category = (typeof CategoryPrimitives)[number];
 
 /**
  * Annotation type primitives
@@ -42,4 +37,4 @@ export const AnnotationTypePrimitives = [
   CATEGORY_TYPE,
   ASSIGNEE_TYPE,
 ] as const;
-export type ValidAnnotationTypes = typeof AnnotationTypePrimitives[number];
+export type ValidAnnotationTypes = (typeof AnnotationTypePrimitives)[number];

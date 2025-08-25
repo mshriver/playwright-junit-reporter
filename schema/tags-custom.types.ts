@@ -7,4 +7,4 @@ export const CustomTagPrimitives = [
   'sanity',
   'e2e',
 ] as const;
-export type CustomTags = typeof CustomTagPrimitives[number];
+export type CustomTags = (typeof CustomTagPrimitives)[number];

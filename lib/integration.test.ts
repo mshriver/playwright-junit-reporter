@@ -1,0 +1,317 @@
+/**
+ * Integration tests for the main validation functions
+ * Tests the exported validation functions from the index module
+ */
+
+import { describe, it } from 'node:test';
+import assert from 'node:assert/strict';
+import {
+  validateTestTags,
+  validateTestAnnotations,
+  validateTestMetadata,
+  createMetadataValidationHook,
+  TestInfo,
+} from './index.js';
+
+describe('Validation Functions Integration Tests', () => {
+  describe('validateTestTags function', () => {
+    it('should validate valid tags correctly', () => {
+      const testInfo: TestInfo = {
+        title: 'Test with valid tags',
+        file: 'test.spec.ts',
+        tags: ['@smoke', '@regression', '@e2e'],
+        annotations: [],
+      };
+
+      const result = validateTestTags(testInfo, { logWarnings: false });
+
+      assert.strictEqual(result.isValid, true);
+      assert.deepStrictEqual(result.validTags, [
+        '@smoke',
+        '@regression',
+        '@e2e',
+      ]);
+      assert.deepStrictEqual(result.invalidTags, []);
+      assert.strictEqual(result.errors.length, 0);
+    });
+
+    it('should identify invalid tags', () => {
+      const testInfo: TestInfo = {
+        title: 'Test with invalid tags',
+        file: 'test.spec.ts',
+        tags: ['@smoke', '@invalid-tag', '@another-invalid'],
+        annotations: [],
+      };
+
+      const result = validateTestTags(testInfo, { logWarnings: false });
+
+      assert.strictEqual(result.isValid, false);
+      assert.deepStrictEqual(result.validTags, ['@smoke']);
+      assert.deepStrictEqual(result.invalidTags, [
+        '@invalid-tag',
+        '@another-invalid',
+      ]);
+      assert.strictEqual(result.errors.length, 2);
+      assert.ok(result.errors[0].includes('Invalid tag: "@invalid-tag"'));
+      assert.ok(result.errors[1].includes('Invalid tag: "@another-invalid"'));
+    });
+
+    it('should handle empty tags array', () => {
+      const testInfo: TestInfo = {
+        title: 'Test with no tags',
+        file: 'test.spec.ts',
+        tags: [],
+        annotations: [],
+      };
+
+      const result = validateTestTags(testInfo, { logWarnings: false });
+
+      assert.strictEqual(result.isValid, true);
+      assert.deepStrictEqual(result.validTags, []);
+      assert.deepStrictEqual(result.invalidTags, []);
+      assert.strictEqual(result.errors.length, 0);
+    });
+  });
+
+  describe('validateTestAnnotations function', () => {
+    it('should validate valid annotations correctly', () => {
+      const testInfo: TestInfo = {
+        title: 'Test with valid annotations',
+        file: 'test.spec.ts',
+        tags: [],
+        annotations: [
+          { type: 'importance', description: 'critical' },
+          { type: 'link', description: 'https://example.com' },
+          { type: 'interface', description: 'api' },
+          { type: 'category', description: 'unit' },
+        ],
+      };
+
+      const result = validateTestAnnotations(testInfo, { logWarnings: false });
+
+      assert.strictEqual(result.isValid, true);
+      assert.strictEqual(result.validAnnotations.length, 4);
+      assert.strictEqual(result.invalidAnnotations.length, 0);
+      assert.strictEqual(result.errors.length, 0);
+    });
+
+    it('should identify invalid annotation types', () => {
+      const testInfo: TestInfo = {
+        title: 'Test with invalid annotation type',
+        file: 'test.spec.ts',
+        tags: [],
+        annotations: [
+          { type: 'importance', description: 'critical' },
+          { type: 'invalid-type', description: 'some value' },
+        ],
+      };
+
+      const result = validateTestAnnotations(testInfo, { logWarnings: false });
+
+      assert.strictEqual(result.isValid, false);
+      assert.strictEqual(result.validAnnotations.length, 1);
+      assert.strictEqual(result.invalidAnnotations.length, 1);
+      assert.strictEqual(result.errors.length, 1);
+      assert.ok(result.errors[0].includes('type="invalid-type"'));
+    });
+
+    it('should identify invalid annotation values', () => {
+      const testInfo: TestInfo = {
+        title: 'Test with invalid annotation values',
+        file: 'test.spec.ts',
+        tags: [],
+        annotations: [
+          { type: 'importance', description: 'urgent' }, // invalid value
+          { type: 'interface', description: 'mobile' }, // invalid value
+          { type: 'category', description: 'smoke' }, // invalid value
+        ],
+      };
+
+      const result = validateTestAnnotations(testInfo, { logWarnings: false });
+
+      assert.strictEqual(result.isValid, false);
+      assert.strictEqual(result.validAnnotations.length, 0);
+      assert.strictEqual(result.invalidAnnotations.length, 3);
+      assert.strictEqual(result.errors.length, 3);
+    });
+
+    it('should handle empty annotations array', () => {
+      const testInfo: TestInfo = {
+        title: 'Test with no annotations',
+        file: 'test.spec.ts',
+        tags: [],
+        annotations: [],
+      };
+
+      const result = validateTestAnnotations(testInfo, { logWarnings: false });
+
+      assert.strictEqual(result.isValid, true);
+      assert.strictEqual(result.validAnnotations.length, 0);
+      assert.strictEqual(result.invalidAnnotations.length, 0);
+      assert.strictEqual(result.errors.length, 0);
+    });
+  });
+
+  describe('validateTestMetadata function', () => {
+    it('should validate both tags and annotations together', () => {
+      const testInfo: TestInfo = {
+        title: 'Test with valid metadata',
+        file: 'test.spec.ts',
+        tags: ['@smoke', '@regression'],
+        annotations: [
+          { type: 'importance', description: 'high' },
+          { type: 'category', description: 'function' },
+        ],
+      };
+
+      const result = validateTestMetadata(testInfo, { logWarnings: false });
+
+      assert.strictEqual(result.isAllValid, true);
+      assert.strictEqual(result.tags.isValid, true);
+      assert.strictEqual(result.annotations.isValid, true);
+      assert.strictEqual(result.allErrors.length, 0);
+    });
+
+    it('should identify mixed valid and invalid metadata', () => {
+      const testInfo: TestInfo = {
+        title: 'Test with mixed metadata',
+        file: 'test.spec.ts',
+        tags: ['@smoke', '@invalid-tag'],
+        annotations: [
+          { type: 'importance', description: 'high' },
+          { type: 'invalid-type', description: 'test' },
+        ],
+      };
+
+      const result = validateTestMetadata(testInfo, { logWarnings: false });
+
+      assert.strictEqual(result.isAllValid, false);
+      assert.strictEqual(result.tags.isValid, false);
+      assert.strictEqual(result.annotations.isValid, false);
+      assert.strictEqual(result.allErrors.length, 2);
+      assert.ok(
+        result.allErrors.some((error) => error.includes('@invalid-tag')),
+      );
+      assert.ok(
+        result.allErrors.some((error) => error.includes('invalid-type')),
+      );
+    });
+  });
+
+  describe('createMetadataValidationHook function', () => {
+    it('should create a function that validates metadata without failing', async () => {
+      const validationHook = createMetadataValidationHook({
+        failOnValidationError: false,
+        logWarnings: false,
+      });
+
+      const testInfo: TestInfo = {
+        title: 'Test with invalid metadata',
+        file: 'test.spec.ts',
+        tags: ['@invalid-tag'],
+        annotations: [{ type: 'invalid-type', description: 'test' }],
+      };
+
+      // Should not throw an error even with invalid metadata
+      await assert.doesNotReject(async () => {
+        await validationHook({}, testInfo);
+      });
+    });
+
+    it('should create a function that fails on validation errors when configured', async () => {
+      const validationHook = createMetadataValidationHook({
+        failOnValidationError: true,
+        logWarnings: false,
+      });
+
+      const testInfo: TestInfo = {
+        title: 'Test with invalid metadata',
+        file: 'test.spec.ts',
+        tags: ['@invalid-tag'],
+        annotations: [{ type: 'invalid-type', description: 'test' }],
+      };
+
+      // Should throw an error with invalid metadata
+      await assert.rejects(async () => {
+        await validationHook({}, testInfo);
+      }, /Test metadata validation failed/);
+    });
+
+    it('should not fail with valid metadata', async () => {
+      const validationHook = createMetadataValidationHook({
+        failOnValidationError: true,
+        logWarnings: false,
+      });
+
+      const testInfo: TestInfo = {
+        title: 'Test with valid metadata',
+        file: 'test.spec.ts',
+        tags: ['@smoke'],
+        annotations: [{ type: 'importance', description: 'high' }],
+      };
+
+      // Should not throw an error with valid metadata
+      await assert.doesNotReject(async () => {
+        await validationHook({}, testInfo);
+      });
+    });
+  });
+
+  describe('Configuration options', () => {
+    it('should respect logWarnings configuration', () => {
+      const testInfo: TestInfo = {
+        title: 'Test with invalid tag',
+        file: 'test.spec.ts',
+        tags: ['@invalid-tag'],
+        annotations: [],
+      };
+
+      // Mock console.warn to capture warnings
+      const originalWarn = console.warn;
+      let warningCalled = false;
+      console.warn = () => {
+        warningCalled = true;
+      };
+
+      try {
+        // Should log warnings when logWarnings is true (default)
+        validateTestTags(testInfo, { logWarnings: true });
+        assert.strictEqual(warningCalled, true);
+
+        // Reset
+        warningCalled = false;
+
+        // Should not log warnings when logWarnings is false
+        validateTestTags(testInfo, { logWarnings: false });
+        assert.strictEqual(warningCalled, false);
+      } finally {
+        console.warn = originalWarn;
+      }
+    });
+
+    it('should use custom logger when provided', () => {
+      const testInfo: TestInfo = {
+        title: 'Test with invalid tag',
+        file: 'test.spec.ts',
+        tags: ['@invalid-tag'],
+        annotations: [],
+      };
+
+      let customLoggerCalled = false;
+      let loggedMessage = '';
+
+      const customLogger = (message: string) => {
+        customLoggerCalled = true;
+        loggedMessage = message;
+      };
+
+      validateTestTags(testInfo, {
+        logWarnings: true,
+        logger: customLogger,
+      });
+
+      assert.strictEqual(customLoggerCalled, true);
+      assert.ok(loggedMessage.includes('@invalid-tag'));
+    });
+  });
+});
