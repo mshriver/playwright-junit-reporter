@@ -8,11 +8,12 @@
 
 import { readFileSync, existsSync } from 'fs';
 import { resolve } from 'path';
+import { TestInfo } from '@playwright/test';
+
 import {
   validateTestTags,
   validateTestAnnotations,
   ValidationConfig,
-  TestInfo,
 } from './index.js';
 import { pathToFileURL } from 'url';
 
@@ -107,7 +108,7 @@ function runDemoValidation(config: ValidationConfig): boolean {
   console.log('Running demo validation...\n');
 
   // Example test cases
-  const testCases: TestInfo[] = [
+  const testCases: Partial<TestInfo>[] = [
     {
       title: 'Valid test with good metadata',
       file: 'example.spec.ts',
@@ -139,11 +140,11 @@ function runDemoValidation(config: ValidationConfig): boolean {
   testCases.forEach((testInfo, index) => {
     console.log(`Test ${index + 1}: "${testInfo.title}"`);
 
-    const tagResult = validateTestTags(testInfo, {
+    const tagResult = validateTestTags(testInfo as TestInfo, {
       ...config,
       logWarnings: false,
     });
-    const annotationResult = validateTestAnnotations(testInfo, {
+    const annotationResult = validateTestAnnotations(testInfo as TestInfo, {
       ...config,
       logWarnings: false,
     });
@@ -173,6 +174,8 @@ function runDemoValidation(config: ValidationConfig): boolean {
 
 /**
  * Main CLI entry point
+ *
+ * TODO: run validation of given glob path or files?
  */
 async function main(): Promise<void> {
   const args = process.argv.slice(2);

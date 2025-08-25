@@ -5,25 +5,27 @@
 
 import { describe, it } from 'node:test';
 import assert from 'node:assert/strict';
+import { TestInfo } from '@playwright/test';
 import {
   validateTestTags,
   validateTestAnnotations,
   validateTestMetadata,
   createMetadataValidationHook,
-  TestInfo,
 } from './index.js';
 
 describe('Validation Functions Integration Tests', () => {
   describe('validateTestTags function', () => {
     it('should validate valid tags correctly', () => {
-      const testInfo: TestInfo = {
+      const testInfo: Partial<TestInfo> = {
         title: 'Test with valid tags',
         file: 'test.spec.ts',
         tags: ['@smoke', '@regression', '@e2e'],
         annotations: [],
       };
 
-      const result = validateTestTags(testInfo, { logWarnings: false });
+      const result = validateTestTags(testInfo as TestInfo, {
+        logWarnings: false,
+      });
 
       assert.strictEqual(result.isValid, true);
       assert.deepStrictEqual(result.validTags, [
@@ -36,14 +38,16 @@ describe('Validation Functions Integration Tests', () => {
     });
 
     it('should identify invalid tags', () => {
-      const testInfo: TestInfo = {
+      const testInfo: Partial<TestInfo> = {
         title: 'Test with invalid tags',
         file: 'test.spec.ts',
         tags: ['@smoke', '@invalid-tag', '@another-invalid'],
         annotations: [],
       };
 
-      const result = validateTestTags(testInfo, { logWarnings: false });
+      const result = validateTestTags(testInfo as TestInfo, {
+        logWarnings: false,
+      });
 
       assert.strictEqual(result.isValid, false);
       assert.deepStrictEqual(result.validTags, ['@smoke']);
@@ -57,14 +61,16 @@ describe('Validation Functions Integration Tests', () => {
     });
 
     it('should handle empty tags array', () => {
-      const testInfo: TestInfo = {
+      const testInfo: Partial<TestInfo> = {
         title: 'Test with no tags',
         file: 'test.spec.ts',
         tags: [],
         annotations: [],
       };
 
-      const result = validateTestTags(testInfo, { logWarnings: false });
+      const result = validateTestTags(testInfo as TestInfo, {
+        logWarnings: false,
+      });
 
       assert.strictEqual(result.isValid, true);
       assert.deepStrictEqual(result.validTags, []);
@@ -75,7 +81,7 @@ describe('Validation Functions Integration Tests', () => {
 
   describe('validateTestAnnotations function', () => {
     it('should validate valid annotations correctly', () => {
-      const testInfo: TestInfo = {
+      const testInfo: Partial<TestInfo> = {
         title: 'Test with valid annotations',
         file: 'test.spec.ts',
         tags: [],
@@ -87,7 +93,9 @@ describe('Validation Functions Integration Tests', () => {
         ],
       };
 
-      const result = validateTestAnnotations(testInfo, { logWarnings: false });
+      const result = validateTestAnnotations(testInfo as TestInfo, {
+        logWarnings: false,
+      });
 
       assert.strictEqual(result.isValid, true);
       assert.strictEqual(result.validAnnotations.length, 4);
@@ -96,7 +104,7 @@ describe('Validation Functions Integration Tests', () => {
     });
 
     it('should identify invalid annotation types', () => {
-      const testInfo: TestInfo = {
+      const testInfo: Partial<TestInfo> = {
         title: 'Test with invalid annotation type',
         file: 'test.spec.ts',
         tags: [],
@@ -106,7 +114,9 @@ describe('Validation Functions Integration Tests', () => {
         ],
       };
 
-      const result = validateTestAnnotations(testInfo, { logWarnings: false });
+      const result = validateTestAnnotations(testInfo as TestInfo, {
+        logWarnings: false,
+      });
 
       assert.strictEqual(result.isValid, false);
       assert.strictEqual(result.validAnnotations.length, 1);
@@ -116,7 +126,7 @@ describe('Validation Functions Integration Tests', () => {
     });
 
     it('should identify invalid annotation values', () => {
-      const testInfo: TestInfo = {
+      const testInfo: Partial<TestInfo> = {
         title: 'Test with invalid annotation values',
         file: 'test.spec.ts',
         tags: [],
@@ -127,7 +137,9 @@ describe('Validation Functions Integration Tests', () => {
         ],
       };
 
-      const result = validateTestAnnotations(testInfo, { logWarnings: false });
+      const result = validateTestAnnotations(testInfo as TestInfo, {
+        logWarnings: false,
+      });
 
       assert.strictEqual(result.isValid, false);
       assert.strictEqual(result.validAnnotations.length, 0);
@@ -136,14 +148,16 @@ describe('Validation Functions Integration Tests', () => {
     });
 
     it('should handle empty annotations array', () => {
-      const testInfo: TestInfo = {
+      const testInfo: Partial<TestInfo> = {
         title: 'Test with no annotations',
         file: 'test.spec.ts',
         tags: [],
         annotations: [],
       };
 
-      const result = validateTestAnnotations(testInfo, { logWarnings: false });
+      const result = validateTestAnnotations(testInfo as TestInfo, {
+        logWarnings: false,
+      });
 
       assert.strictEqual(result.isValid, true);
       assert.strictEqual(result.validAnnotations.length, 0);
@@ -154,7 +168,7 @@ describe('Validation Functions Integration Tests', () => {
 
   describe('validateTestMetadata function', () => {
     it('should validate both tags and annotations together', () => {
-      const testInfo: TestInfo = {
+      const testInfo: Partial<TestInfo> = {
         title: 'Test with valid metadata',
         file: 'test.spec.ts',
         tags: ['@smoke', '@regression'],
@@ -164,7 +178,9 @@ describe('Validation Functions Integration Tests', () => {
         ],
       };
 
-      const result = validateTestMetadata(testInfo, { logWarnings: false });
+      const result = validateTestMetadata(testInfo as TestInfo, {
+        logWarnings: false,
+      });
 
       assert.strictEqual(result.isAllValid, true);
       assert.strictEqual(result.tags.isValid, true);
@@ -173,7 +189,7 @@ describe('Validation Functions Integration Tests', () => {
     });
 
     it('should identify mixed valid and invalid metadata', () => {
-      const testInfo: TestInfo = {
+      const testInfo: Partial<TestInfo> = {
         title: 'Test with mixed metadata',
         file: 'test.spec.ts',
         tags: ['@smoke', '@invalid-tag'],
@@ -183,7 +199,9 @@ describe('Validation Functions Integration Tests', () => {
         ],
       };
 
-      const result = validateTestMetadata(testInfo, { logWarnings: false });
+      const result = validateTestMetadata(testInfo as TestInfo, {
+        logWarnings: false,
+      });
 
       assert.strictEqual(result.isAllValid, false);
       assert.strictEqual(result.tags.isValid, false);
@@ -205,7 +223,7 @@ describe('Validation Functions Integration Tests', () => {
         logWarnings: false,
       });
 
-      const testInfo: TestInfo = {
+      const testInfo: Partial<TestInfo> = {
         title: 'Test with invalid metadata',
         file: 'test.spec.ts',
         tags: ['@invalid-tag'],
@@ -214,7 +232,7 @@ describe('Validation Functions Integration Tests', () => {
 
       // Should not throw an error even with invalid metadata
       await assert.doesNotReject(async () => {
-        await validationHook({}, testInfo);
+        await validationHook({}, testInfo as TestInfo);
       });
     });
 
@@ -224,7 +242,7 @@ describe('Validation Functions Integration Tests', () => {
         logWarnings: false,
       });
 
-      const testInfo: TestInfo = {
+      const testInfo: Partial<TestInfo> = {
         title: 'Test with invalid metadata',
         file: 'test.spec.ts',
         tags: ['@invalid-tag'],
@@ -233,7 +251,7 @@ describe('Validation Functions Integration Tests', () => {
 
       // Should throw an error with invalid metadata
       await assert.rejects(async () => {
-        await validationHook({}, testInfo);
+        await validationHook({}, testInfo as TestInfo);
       }, /Test metadata validation failed/);
     });
 
@@ -243,7 +261,7 @@ describe('Validation Functions Integration Tests', () => {
         logWarnings: false,
       });
 
-      const testInfo: TestInfo = {
+      const testInfo: Partial<TestInfo> = {
         title: 'Test with valid metadata',
         file: 'test.spec.ts',
         tags: ['@smoke'],
@@ -252,14 +270,14 @@ describe('Validation Functions Integration Tests', () => {
 
       // Should not throw an error with valid metadata
       await assert.doesNotReject(async () => {
-        await validationHook({}, testInfo);
+        await validationHook({}, testInfo as TestInfo);
       });
     });
   });
 
   describe('Configuration options', () => {
     it('should respect logWarnings configuration', () => {
-      const testInfo: TestInfo = {
+      const testInfo: Partial<TestInfo> = {
         title: 'Test with invalid tag',
         file: 'test.spec.ts',
         tags: ['@invalid-tag'],
@@ -275,14 +293,14 @@ describe('Validation Functions Integration Tests', () => {
 
       try {
         // Should log warnings when logWarnings is true (default)
-        validateTestTags(testInfo, { logWarnings: true });
+        validateTestTags(testInfo as TestInfo, { logWarnings: true });
         assert.strictEqual(warningCalled, true);
 
         // Reset
         warningCalled = false;
 
         // Should not log warnings when logWarnings is false
-        validateTestTags(testInfo, { logWarnings: false });
+        validateTestTags(testInfo as TestInfo, { logWarnings: false });
         assert.strictEqual(warningCalled, false);
       } finally {
         console.warn = originalWarn;
@@ -290,7 +308,7 @@ describe('Validation Functions Integration Tests', () => {
     });
 
     it('should use custom logger when provided', () => {
-      const testInfo: TestInfo = {
+      const testInfo: Partial<TestInfo> = {
         title: 'Test with invalid tag',
         file: 'test.spec.ts',
         tags: ['@invalid-tag'],
@@ -305,7 +323,7 @@ describe('Validation Functions Integration Tests', () => {
         loggedMessage = message;
       };
 
-      validateTestTags(testInfo, {
+      validateTestTags(testInfo as TestInfo, {
         logWarnings: true,
         logger: customLogger,
       });
