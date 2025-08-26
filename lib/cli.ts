@@ -29,7 +29,7 @@ interface CLIOptions {
 /**
  * Parse command line arguments
  */
-function parseArgs(args: string[]): CLIOptions {
+export function parseArgs(args: string[]): CLIOptions {
   const options: CLIOptions = {};
 
   for (let i = 0; i < args.length; i++) {
@@ -61,7 +61,7 @@ function parseArgs(args: string[]): CLIOptions {
 /**
  * Print help information
  */
-function printHelp(): void {
+export function printHelp(): void {
   console.log(`
 Playwright Metadata Validator
 
@@ -85,7 +85,7 @@ Examples:
 /**
  * Load configuration from file
  */
-function loadConfig(configPath: string): ValidationConfig {
+export function loadConfig(configPath: string): ValidationConfig {
   try {
     const fullPath = resolve(configPath);
     if (!existsSync(fullPath)) {
@@ -104,7 +104,7 @@ function loadConfig(configPath: string): ValidationConfig {
 /**
  * Demo validation function
  */
-function runDemoValidation(config: ValidationConfig): boolean {
+export function runDemoValidation(config: ValidationConfig): boolean {
   console.log('Running demo validation...\n');
 
   // Example test cases
@@ -177,7 +177,7 @@ function runDemoValidation(config: ValidationConfig): boolean {
  *
  * TODO: run validation of given glob path or files?
  */
-async function main(): Promise<void> {
+export async function main(): Promise<void> {
   const args = process.argv.slice(2);
   const options = parseArgs(args);
 

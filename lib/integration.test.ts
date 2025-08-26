@@ -11,6 +11,8 @@ import {
   validateTestAnnotations,
   validateTestMetadata,
   createMetadataValidationHook,
+  mergeValidationConfig,
+  DEFAULT_VALIDATION_CONFIG,
 } from './index.js';
 
 describe('Validation Functions Integration Tests', () => {
@@ -330,6 +332,163 @@ describe('Validation Functions Integration Tests', () => {
 
       assert.strictEqual(customLoggerCalled, true);
       assert.ok(loggedMessage.includes('@invalid-tag'));
+    });
+
+    it('should handle null annotations correctly', () => {
+      const testInfo: Partial<TestInfo> = {
+        title: 'Test with null annotation',
+        file: 'test.spec.ts',
+        tags: [],
+        annotations: [null as unknown as { type: string; description: string }],
+      };
+
+      const result = validateTestAnnotations(testInfo as TestInfo, {
+        logWarnings: false,
+      });
+
+      assert.strictEqual(result.isValid, false);
+      assert.strictEqual(result.validAnnotations.length, 0);
+      assert.strictEqual(result.invalidAnnotations.length, 1);
+      assert.strictEqual(result.errors.length, 1);
+      assert.ok(result.errors[0].includes('must be an object, got object'));
+    });
+
+    it('should handle non-object annotations correctly', () => {
+      const testInfo: Partial<TestInfo> = {
+        title: 'Test with non-object annotation',
+        file: 'test.spec.ts',
+        tags: [],
+        annotations: [
+          'string annotation' as unknown as {
+            type: string;
+            description: string;
+          },
+          123 as unknown as { type: string; description: string },
+        ],
+      };
+
+      const result = validateTestAnnotations(testInfo as TestInfo, {
+        logWarnings: false,
+      });
+
+      assert.strictEqual(result.isValid, false);
+      assert.strictEqual(result.validAnnotations.length, 0);
+      assert.strictEqual(result.invalidAnnotations.length, 2);
+      assert.strictEqual(result.errors.length, 2);
+      assert.ok(result.errors[0].includes('must be an object, got string'));
+      assert.ok(result.errors[1].includes('must be an object, got number'));
+    });
+
+    it('should handle annotations missing type property', () => {
+      const testInfo: Partial<TestInfo> = {
+        title: 'Test with annotation missing type',
+        file: 'test.spec.ts',
+        tags: [],
+        annotations: [
+          { description: 'missing type' } as unknown as {
+            type: string;
+            description: string;
+          },
+        ],
+      };
+
+      const result = validateTestAnnotations(testInfo as TestInfo, {
+        logWarnings: false,
+      });
+
+      assert.strictEqual(result.isValid, false);
+      assert.strictEqual(result.errors.length, 1);
+      assert.ok(result.errors[0].includes('missing "type" property'));
+    });
+
+    it('should handle annotations missing description property', () => {
+      const testInfo: Partial<TestInfo> = {
+        title: 'Test with annotation missing description',
+        file: 'test.spec.ts',
+        tags: [],
+        annotations: [
+          { type: 'importance' } as unknown as {
+            type: string;
+            description: string;
+          },
+        ],
+      };
+
+      const result = validateTestAnnotations(testInfo as TestInfo, {
+        logWarnings: false,
+      });
+
+      assert.strictEqual(result.isValid, false);
+      assert.strictEqual(result.errors.length, 1);
+      assert.ok(result.errors[0].includes('missing "description" property'));
+    });
+  });
+
+  describe('Utility Functions', () => {
+    it('should merge validation configurations correctly', () => {
+      const baseConfig = {
+        failOnValidationError: false,
+        logWarnings: true,
+        logger: console.warn,
+      };
+
+      const overrides = {
+        failOnValidationError: true,
+        logWarnings: false,
+      };
+
+      const result = mergeValidationConfig(baseConfig, overrides);
+
+      assert.strictEqual(result.failOnValidationError, true);
+      assert.strictEqual(result.logWarnings, false);
+      assert.strictEqual(result.logger, console.warn); // Should preserve base config value
+    });
+
+    it('should handle empty overrides', () => {
+      const baseConfig = {
+        failOnValidationError: true,
+        logWarnings: false,
+      };
+
+      const result = mergeValidationConfig(baseConfig, {});
+
+      assert.deepStrictEqual(result, baseConfig);
+    });
+
+    it('should handle partial overrides', () => {
+      const baseConfig = {
+        failOnValidationError: false,
+        logWarnings: true,
+        logger: console.warn,
+      };
+
+      const overrides = {
+        failOnValidationError: true,
+      };
+
+      const result = mergeValidationConfig(baseConfig, overrides);
+
+      assert.strictEqual(result.failOnValidationError, true);
+      assert.strictEqual(result.logWarnings, true);
+      assert.strictEqual(result.logger, console.warn);
+    });
+
+    it('should work with DEFAULT_VALIDATION_CONFIG', () => {
+      const overrides = {
+        failOnValidationError: true,
+      };
+
+      const result = mergeValidationConfig(
+        DEFAULT_VALIDATION_CONFIG,
+        overrides,
+      );
+
+      assert.strictEqual(result.failOnValidationError, true);
+      assert.strictEqual(
+        result.logWarnings,
+        DEFAULT_VALIDATION_CONFIG.logWarnings,
+      );
+      assert.strictEqual(result.logger, DEFAULT_VALIDATION_CONFIG.logger);
     });
   });
 });

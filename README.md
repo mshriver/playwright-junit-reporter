@@ -38,6 +38,7 @@ The CLI tool provides fast, lightweight validation that integrates seamlessly wi
 **⚠️ CAUTION**: Runtime validation using beforeEach hooks or auto-fixtures should be considered **optional supplementary tools**. They add execution overhead to your test runs and should be used judiciously.
 
 Runtime validation is best suited for:
+
 - Development environments where immediate feedback is valuable
 - Specific test suites where metadata validation is critical
 - Debugging scenarios where detailed validation logging is needed
@@ -121,10 +122,12 @@ import { test } from '@playwright/test';
 import { createMetadataValidationHook } from 'playwright-meta-schema';
 
 // ⚠️ Adds performance overhead - use only when necessary
-test.beforeEach(createMetadataValidationHook({
-  failOnValidationError: false, // Just warn, don't fail
-  logWarnings: process.env.NODE_ENV === 'development',
-}));
+test.beforeEach(
+  createMetadataValidationHook({
+    failOnValidationError: false, // Just warn, don't fail
+    logWarnings: process.env.NODE_ENV === 'development',
+  }),
+);
 
 test('Example test @smoke @regression', async ({ page }) => {
   await test.info().annotate({ type: 'importance', description: 'critical' });
